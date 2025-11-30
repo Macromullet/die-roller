@@ -311,11 +311,19 @@
     let diceMeshes = [];
     let animationId;
 
-    function secureRandomInt(max) {
-      const array = new Uint32Array(1);
-      crypto.getRandomValues(array);
-      return Math.floor((array[0] / 0x100000000) * max);
-    }
+    const secureRandomInt = ((cryptoObj) => {
+      const fallback = (max) => Math.floor(Math.random() * max);
+      if (cryptoObj?.getRandomValues) {
+        return (max) => {
+          const array = new Uint32Array(1);
+          cryptoObj.getRandomValues(array);
+          return Math.floor((array[0] / 0x100000000) * max);
+        };
+      }
+
+      console.warn('Secure crypto.getRandomValues unavailable; falling back to Math.random.');
+      return fallback;
+    })(window.crypto || window.msCrypto);
 
     function buildMaterials(definition) {
       if (!definition.faceColors) {
@@ -349,28 +357,33 @@
     }
 
     function rollDice() {
-      const type = document.getElementById('die').value;
-      const count = Math.max(1, Math.min(parseInt(document.getElementById('count').value, 10) || 1, 12));
-      document.getElementById('count').value = count;
+      try {
+        const type = document.getElementById('die').value;
+        const count = Math.max(1, Math.min(parseInt(document.getElementById('count').value, 10) || 1, 12));
+        document.getElementById('count').value = count;
 
-      const definition = diceCatalog[type];
-      if (!definition) return;
+        const definition = diceCatalog[type];
+        if (!definition) return;
 
-      diceMeshes.forEach(mesh => scene.remove(mesh));
-      diceMeshes = [];
+        diceMeshes.forEach(mesh => scene.remove(mesh));
+        diceMeshes = [];
 
-      const results = [];
-      for (let i = 0; i < count; i++) {
-        const rollIndex = secureRandomInt(definition.sides);
-        const rolledValue = definition.faceColors ? COLOR_FACES[rollIndex].name : rollIndex + 1;
-        results.push(rolledValue);
-        const mesh = createDieMesh(definition, i, count);
-        scene.add(mesh);
-        diceMeshes.push(mesh);
+        const results = [];
+        for (let i = 0; i < count; i++) {
+          const rollIndex = secureRandomInt(definition.sides);
+          const rolledValue = definition.faceColors ? COLOR_FACES[rollIndex].name : rollIndex + 1;
+          results.push(rolledValue);
+          const mesh = createDieMesh(definition, i, count);
+          scene.add(mesh);
+          diceMeshes.push(mesh);
+        }
+
+        animateRoll();
+        renderResults(definition, results);
+      } catch (error) {
+        console.error('Dice roll failed:', error);
+        renderError('Rolling failed — try refreshing the page or switching to a secure (https) context.');
       }
-
-      animateRoll();
-      renderResults(definition, results);
     }
 
     function animateRoll() {
@@ -441,6 +454,17 @@
         item.appendChild(result);
         container.appendChild(item);
       });
+    }
+
+    function renderError(message) {
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+      const error = document.createElement('div');
+      error.className = 'pill';
+      error.style.background = 'rgba(239, 68, 68, 0.15)';
+      error.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+      error.textContent = message;
+      container.appendChild(error);
     }
 
     window.addEventListener('resize', () => {
