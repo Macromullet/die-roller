@@ -47,19 +47,23 @@ export function createWorld() {
 
 export function createDieBody(definition, mesh, type, diceMaterial) {
   let shape;
+  let halfHeight;
   switch (type) {
     case 'd6':
     case 'color': {
       const half = DIE_SIZES.d6 / 2;
       shape = new CANNON.Box(new CANNON.Vec3(half, half, half));
+      halfHeight = half;
       break;
     }
     case 'd10':
       shape = new CANNON.Cylinder(DIE_SIZES.d10.radius, DIE_SIZES.d10.radius, DIE_SIZES.d10.height, 10);
+      halfHeight = DIE_SIZES.d10.height / 2;
       break;
     default: {
       const geom = definition.geometry();
       shape = createConvexPolyhedronFromGeometry(geom);
+      halfHeight = mesh?.userData?.halfHeight;
       break;
     }
   }
@@ -72,6 +76,10 @@ export function createDieBody(definition, mesh, type, diceMaterial) {
   body.sleepSpeedLimit = 0.15;
   body.sleepTimeLimit = 0.4;
   body.userData = { dieType: type };
+  if (halfHeight != null) {
+    body.userData.halfHeight = halfHeight;
+    body.half = halfHeight;
+  }
   if (!(type === 'd6' || type === 'color') && mesh.userData.faceGroups) {
     body.userData.faceGroups = mesh.userData.faceGroups.map(g => ({ normal: new CANNON.Vec3(g.normal.x, g.normal.y, g.normal.z), value: g.value }));
   }
@@ -98,7 +106,7 @@ export function applyImpulse(body) {
 export function applyGroundFriction(body, dt) {
   const type = body.userData?.dieType;
   const half = (type === 'd6' || type === 'color') ? DIE_SIZES.d6 / 2 : body.shapes?.[0]?.boundingSphereRadius || body.userData?.halfHeight || 0.01;
-  const grounded = body.position.y - half < 0.003;
+  const grounded = body.position.y - half < 0.005;
   if (!grounded) return;
   const horiz = new CANNON.Vec3(body.velocity.x, 0, body.velocity.z);
   const speed = horiz.length();
@@ -108,12 +116,20 @@ export function applyGroundFriction(body, dt) {
     if (speed > 0) horiz.scale(newSpeed / speed, horiz);
     body.velocity.x = horiz.x;
     body.velocity.z = horiz.z;
+    // Static clamp: kill tiny residual sliding
+    if (newSpeed < (FRICTION.staticClampLin ?? 0)) {
+      body.velocity.x = 0;
+      body.velocity.z = 0;
+    }
   }
   const ang = body.angularVelocity.length();
   if (ang > 0) {
     const angDrop = FRICTION.angDrop * dt;
     const scale = Math.max(0, 1 - angDrop);
     body.angularVelocity.scale(scale, body.angularVelocity);
+    if (ang * scale < (FRICTION.staticClampAng ?? 0)) {
+      body.angularVelocity.setZero();
+    }
   }
 }
 

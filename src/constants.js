@@ -22,12 +22,12 @@ export const WORLD = {
   gravity: { x: 0, y: -9.82, z: 0 },
   solverIterations: 20,
   solverTolerance: 1e-4,
-  defaultFriction: 0.78,
-  defaultRestitution: 0.08,
-  diceTableFriction: 0.78,
-  diceTableRestitution: 0.08,
-  diceDiceFriction: 0.7,
-  diceDiceRestitution: 0.08,
+  defaultFriction: 0.9,
+  defaultRestitution: 0.05,
+  diceTableFriction: 0.92,
+  diceTableRestitution: 0.03,
+  diceDiceFriction: 0.75,
+  diceDiceRestitution: 0.03,
 };
 
 export const TIMESTEP = {
@@ -39,20 +39,22 @@ export const TIMESTEP = {
 
 export const FREEZE = {
   dotStable: 0.99,
-  linStable: 0.05,
-  angStable: 0.2,
-  minTime: 1.0,
-  stableTime: 0.2,
-  velStableTime: 0.5,
-  fallbackTime: 3.0,
-  fallbackDot: 0.9,
-  fallbackLin: 0.2,
-  fallbackAng: 1.0,
+  linStable: 0.04,
+  angStable: 0.15,
+  minTime: 0.4,
+  stableTime: 0.25,
+  velStableTime: 0.4,
+  fallbackTime: 2.5,
+  fallbackDot: 0.92,
+  fallbackLin: 0.25,
+  fallbackAng: 0.8,
 };
 
 export const FRICTION = {
-  groundDecel: 5, // m/s^2 tangential decel
-  angDrop: 8,    // angular velocity drop factor per second
+  groundDecel: 7.5, // m/s^2 tangential decel
+  angDrop: 10,    // angular velocity drop factor per second
+  staticClampLin: 0.02, // m/s, clamp to zero when below this
+  staticClampAng: 0.2,  // rad/s, clamp to zero when below this
 };
 
 export const COLOR_FACES = [
