@@ -102,6 +102,28 @@ const CLAMP_ANG_THRESHOLD = 0.2;
 const CLAMP_MIN_TIME = 1.0;
 const CLAMP_STABLE_TIME = 0.2;
 const CLAMP_VEL_STABLE_TIME = 0.5;
+
+function applyGroundFriction(body, dt) {
+  const half = DIE_SIZES.d6 / 2;
+  const grounded = body.position.y - half < 0.003;
+  if (!grounded) return;
+  const horiz = new Vec3(body.velocity.x, 0, body.velocity.z);
+  const speed = horiz.length();
+  if (speed > 0) {
+    const decel = 5;
+    const drop = decel * dt;
+    const newSpeed = Math.max(0, speed - drop);
+    horiz.scale(newSpeed / speed, horiz);
+    body.velocity.x = horiz.x;
+    body.velocity.z = horiz.z;
+  }
+  const ang = body.angularVelocity.length();
+  if (ang > 0) {
+    const angDrop = 8 * dt;
+    const scale = Math.max(0, 1 - angDrop);
+    body.angularVelocity.scale(scale, body.angularVelocity);
+  }
+}
 function detectTop(body) {
   const worldUp = new Vec3(0, 1, 0);
   let bestDot = -Infinity;
@@ -154,6 +176,8 @@ function simulateOneTrial() {
     world.step(dt, dt, 1);
     const ang = body.angularVelocity.length();
     const lin = body.velocity.length();
+      applyGroundFriction(body, dt);
+
     if (ang > MAX_ANG) body.angularVelocity.scale(MAX_ANG / ang, body.angularVelocity);
     if (lin > MAX_LIN) body.velocity.scale(MAX_LIN / lin, body.velocity);
     maxAng = Math.max(maxAng, ang);
