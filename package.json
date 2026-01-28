@@ -1,0 +1,24 @@
+{
+  "name": "die-roller",
+  "version": "1.0.0",
+  "description": "A browser-based dice rolling experience with crypto-grade randomness, animated 3D dice, and support for common tabletop dice plus a special color-faced option.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Macromullet/die-roller.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Macromullet/die-roller/issues"
+  },
+  "homepage": "https://github.com/Macromullet/die-roller#readme",
+  "dependencies": {
+    "cannon-es": "^0.20.0"
+  }
+}
