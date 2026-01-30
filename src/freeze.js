@@ -2,13 +2,15 @@ import * as CANNON from 'cannon-es';
 import { secureRandomInt } from './random.js';
 import { FREEZE } from './constants.js';
 
+// Three.js BoxGeometry material order: [+X, -X, +Y, -Y, +Z, -Z] = indices [0,1,2,3,4,5]
+// Map each normal direction to its corresponding Three.js material index
 export const cubeFaceNormals = [
-  { normal: new CANNON.Vec3( 1, 0, 0), value: 3, colorIndex: 0 },
-  { normal: new CANNON.Vec3(-1, 0, 0), value: 4, colorIndex: 1 },
-  { normal: new CANNON.Vec3( 0, 1, 0), value: 1, colorIndex: 2 },
-  { normal: new CANNON.Vec3( 0,-1, 0), value: 2, colorIndex: 3 },
-  { normal: new CANNON.Vec3( 0, 0, 1), value: 5, colorIndex: 4 },
-  { normal: new CANNON.Vec3( 0, 0,-1), value: 6, colorIndex: 5 }
+  { normal: new CANNON.Vec3( 1, 0, 0), value: 3, colorIndex: 0 },  // +X = material 0
+  { normal: new CANNON.Vec3(-1, 0, 0), value: 4, colorIndex: 1 },  // -X = material 1
+  { normal: new CANNON.Vec3( 0, 1, 0), value: 1, colorIndex: 2 },  // +Y = material 2
+  { normal: new CANNON.Vec3( 0,-1, 0), value: 2, colorIndex: 3 },  // -Y = material 3
+  { normal: new CANNON.Vec3( 0, 0, 1), value: 5, colorIndex: 4 },  // +Z = material 4
+  { normal: new CANNON.Vec3( 0, 0,-1), value: 6, colorIndex: 5 }   // -Z = material 5
 ];
 
 export function detectCubeValue(body) {
@@ -52,7 +54,7 @@ export function detectResult(body, definition, type) {
 export function detectTop(body, definition, type) {
   if (type === 'd6' || type === 'color') {
     const best = detectCubeValue(body);
-    return best ? { value: best.value, dot: best.dot } : null;
+    return best ? { value: best.value, dot: best.dot, colorIndex: best.colorIndex } : null;
   }
   return detectResult(body, definition, type);
 }

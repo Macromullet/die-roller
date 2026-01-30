@@ -10,12 +10,12 @@ export const DIE_SIZES = {
 };
 
 export const DIE_MASSES = {
-  d6: 0.005,
-  color: 0.005,
-  d8: 0.0055,
-  d10: 0.005,
-  d12: 0.006,
-  d20: 0.006,
+  d6: 0.006,    // 6g - quality casino dice
+  color: 0.006,
+  d8: 0.008,    // 8g
+  d10: 0.006,   // 6g
+  d12: 0.010,   // 10g
+  d20: 0.013,   // 13g - d20s are chunky!
 };
 
 export const WORLD = {
@@ -51,10 +51,10 @@ export const FREEZE = {
 };
 
 export const FRICTION = {
-  groundDecel: 7.5, // m/s^2 tangential decel
-  angDrop: 10,    // angular velocity drop factor per second
-  staticClampLin: 0.02, // m/s, clamp to zero when below this
-  staticClampAng: 0.2,  // rad/s, clamp to zero when below this
+  groundDecel: 35, // m/s^2 tangential decel (very sticky felt)
+  angDrop: 25,    // angular velocity drop factor per second
+  staticClampLin: 0.18, // m/s, clamp to zero when below this
+  staticClampAng: 0.9,  // rad/s, clamp to zero when below this
 };
 
 export const COLOR_FACES = [

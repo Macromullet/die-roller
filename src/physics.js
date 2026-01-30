@@ -70,11 +70,11 @@ export function createDieBody(definition, mesh, type, diceMaterial) {
   const body = new CANNON.Body({ mass: DIE_MASSES[type] ?? 0.005, shape, material: diceMaterial });
   body.position.copy(mesh.position);
   body.quaternion.copy(mesh.quaternion);
-  body.linearDamping = 0.5;
-  body.angularDamping = 0.6;
+  body.linearDamping = 0.85;
+  body.angularDamping = 0.9;
   body.allowSleep = true;
-  body.sleepSpeedLimit = 0.15;
-  body.sleepTimeLimit = 0.4;
+  body.sleepSpeedLimit = 0.06;
+  body.sleepTimeLimit = 0.1;
   body.userData = { dieType: type };
   if (halfHeight != null) {
     body.userData.halfHeight = halfHeight;
