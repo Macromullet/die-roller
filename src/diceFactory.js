@@ -26,17 +26,25 @@ export function makeFaceTexture(renderer, label, options = {}) {
 
 export function createBoxMaterials(renderer, definition) {
   if (definition.faceColors) {
-    return [0,1,2,3,4,5].map(i => new THREE.MeshStandardMaterial({
+    return [0,1,2,3,4,5].map(i => new THREE.MeshPhysicalMaterial({
       map: makeFaceTexture(renderer, '', { background: definition.faceColors[i].color, color: '#0f172a' }),
-      roughness: 0.35,
-      metalness: 0.15
+      roughness: 0.25,
+      metalness: 0.0,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.15,
+      reflectivity: 0.8,
+      envMapIntensity: 1.2,
     }));
   }
   const labels = ['3','4','1','2','5','6'];
-  return labels.map(label => new THREE.MeshStandardMaterial({
+  return labels.map(label => new THREE.MeshPhysicalMaterial({
     map: makeFaceTexture(renderer, label, { background: definition.color || '#1e3a8a' }),
-    roughness: 0.35,
-    metalness: 0.18
+    roughness: 0.25,
+    metalness: 0.0,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.15,
+    reflectivity: 0.8,
+    envMapIntensity: 1.2,
   }));
 }
 
@@ -47,8 +55,24 @@ export function buildMaterials(renderer, definition) {
   const baseColor = definition.color || '#38bdf8';
   const highlight = new THREE.Color(baseColor).offsetHSL(0, 0, 0.12).getStyle();
   return [
-    new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.4, metalness: 0.15 }),
-    new THREE.MeshStandardMaterial({ color: highlight, roughness: 0.4, metalness: 0.15 })
+    new THREE.MeshPhysicalMaterial({ 
+      color: baseColor, 
+      roughness: 0.28, 
+      metalness: 0.0,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.2,
+      reflectivity: 0.7,
+      envMapIntensity: 1.0,
+    }),
+    new THREE.MeshPhysicalMaterial({ 
+      color: highlight, 
+      roughness: 0.28, 
+      metalness: 0.0,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.2,
+      reflectivity: 0.7,
+      envMapIntensity: 1.0,
+    })
   ];
 }
 
@@ -81,12 +105,14 @@ export function attachFaceLabels(mesh, definition, labelSize = 0.012) {
   });
   groups.forEach((g, idx) => {
     const planeGeom = new THREE.PlaneGeometry(labelSize, labelSize);
-    const mat = new THREE.MeshStandardMaterial({
+    const mat = new THREE.MeshPhysicalMaterial({
       map: makeFaceTexture(renderer, String(idx + 1)),
       transparent: true,
       side: THREE.DoubleSide,
-      roughness: 0.3,
-      metalness: 0.1
+      roughness: 0.25,
+      metalness: 0.0,
+      clearcoat: 0.4,
+      clearcoatRoughness: 0.2,
     });
     const label = new THREE.Mesh(planeGeom, mat);
     label.position.copy(g.center.clone().add(g.normal.clone().multiplyScalar(labelSize * 0.6)));
@@ -104,7 +130,15 @@ export function createDieMesh(definition, index, total, type, renderer) {
   const material = Array.isArray(materials) && materials.length > 2
     ? materials
     : materials.length === 2
-      ? new THREE.MeshStandardMaterial({ color: materials[secureRandomInt(2)].color, roughness: 0.35, metalness: 0.2 })
+      ? new THREE.MeshPhysicalMaterial({ 
+          color: materials[secureRandomInt(2)].color, 
+          roughness: 0.28, 
+          metalness: 0.0,
+          clearcoat: 0.5,
+          clearcoatRoughness: 0.2,
+          reflectivity: 0.7,
+          envMapIntensity: 1.0,
+        })
       : materials[0];
 
   const mesh = new THREE.Mesh(geometry, material);

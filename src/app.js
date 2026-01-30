@@ -16,7 +16,7 @@ const DEBUG = params.has('debug');
 const TEST_MODE = params.has('autotest');
 
 const renderer = createRenderer(container);
-const scene = createScene();
+const scene = createScene(renderer);
 const camera = createCamera(container);
 createLights(scene);
 createTray(scene);
