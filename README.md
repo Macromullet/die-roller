@@ -25,4 +25,5 @@ Then visit `http://localhost:8000` to interact with the app. The page fetches Th
 ## Notes
 
 - Random rolls use `crypto.getRandomValues` when available.
+- Results are read from the final physical pose of each die after it settles.
 - The app is entirely client-side; no build step is needed.

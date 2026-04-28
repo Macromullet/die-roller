@@ -8,6 +8,10 @@ export function renderRolling() {
   rollingPill.className = 'pill';
   rollingPill.textContent = 'Rolling...';
   container.appendChild(rollingPill);
+  const hint = document.createElement('p');
+  hint.className = 'muted';
+  hint.textContent = 'Waiting for the dice to settle.';
+  container.appendChild(hint);
 }
 
 export function renderResults(definition, results) {
@@ -17,7 +21,7 @@ export function renderResults(definition, results) {
   const summary = document.createElement('div');
   summary.className = 'pill';
   const total = definition.faceColors ? `${results.length} color dice` : results.reduce((sum, value) => sum + (value.value ?? value), 0);
-  summary.textContent = definition.faceColors ? `${results.length} rolls` : `Total: ${total}`;
+  summary.textContent = definition.faceColors ? `${results.length} color roll${results.length === 1 ? '' : 's'}` : `${results.length}${definition.label} • Total ${total}`;
   container.appendChild(summary);
   results.forEach((value, idx) => {
     const item = document.createElement('div');
@@ -29,7 +33,9 @@ export function renderResults(definition, results) {
       const colorInfo = COLOR_FACES[value.colorIndex ?? value.faceIndex ?? idx % COLOR_FACES.length];
       const chip = document.createElement('span'); chip.className = 'color-chip'; chip.style.background = colorInfo?.color || '#fff';
       result.appendChild(chip);
-      const text = document.createElement('span'); text.textContent = ` ${colorInfo?.name ?? 'Color'}`; result.appendChild(text);
+      const text = document.createElement('span'); text.textContent = ` ${colorInfo?.name ?? 'Color'}`;
+      text.style.color = colorInfo?.color || '#f8fafc';
+      result.appendChild(text);
     } else {
       result.textContent = value.value ?? value;
     }

@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check src/app.js && node --check src/rollEngine.js && node --check src/physics.js && node --check src/diceCatalog.js && node --check src/diceFactory.js && node --check src/scene.js && node --check src/faces.js && node test/physicsSmoke.test.js"
   },
   "repository": {
     "type": "git",
