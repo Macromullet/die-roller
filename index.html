@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dice Roller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070b12;
+      --panel: rgba(18, 27, 40, 0.78);
+      --accent: #60a5fa;
+      --accent-2: #f59e0b;
+      --text: #eef5ff;
+      --muted: #9fb0c6;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 18%, rgba(96, 165, 250, 0.16), transparent 38%),
+                  radial-gradient(circle at 84% 8%, rgba(245, 158, 11, 0.1), transparent 30%),
+                  radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 0.95), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header { padding: 22px 24px 10px; text-align: center; }
+    h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -1.2px; }
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+      gap: 18px;
+      padding: 20px;
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto 22px;
+      align-items: stretch;
+    }
+    .panel {
+      background: linear-gradient(145deg, rgba(20, 31, 47, 0.86), rgba(8, 13, 22, 0.88));
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.05);
+      backdrop-filter: blur(14px);
+    }
+    .visual-panel { padding: 14px; }
+    .control-panel { display: flex; flex-direction: column; gap: 16px; }
+    .panel-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .panel-title h2 { margin: 0; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; color: #dbeafe; }
+    .panel-title span { color: var(--muted); font-size: 0.85rem; }
+    .controls { display: grid; gap: 14px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--muted); }
+    select, input[type="number"] { width: 100%; padding: 12px 14px; background: rgba(5,10,18,0.72); border: 1px solid rgba(148,163,184,0.22); border-radius: 12px; color: var(--text); font-size: 1rem; }
+    button {
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed 62%, var(--accent-2));
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
+      width: 100%;
+    }
+    button:disabled { cursor: wait; opacity: 0.68; transform: none; box-shadow: none; }
+    button:hover { transform: translateY(-1px); box-shadow: 0 12px 34px rgba(56, 189, 248, 0.5); }
+    button:active { transform: translateY(0); box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4); }
+    #canvas-container {
+      height: clamp(420px, 62vh, 620px);
+      min-height: 0;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      overflow: hidden;
+      position: relative;
+      background: radial-gradient(circle at 50% 35%, rgba(59, 130, 246, 0.12), transparent 44%), #05070b;
+      box-shadow: inset 0 0 70px rgba(0,0,0,0.58);
+    }
+    #canvas-container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 44%, transparent 34%, rgba(0,0,0,0.4) 100%);
+      mix-blend-mode: multiply;
+    }
+    #canvas-container canvas { display: block; }
+    #results { padding: 14px; background: rgba(2, 6, 23, 0.38); border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.14); min-height: 150px; line-height: 1.6; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.14); }
+    .result-item:last-child { border-bottom: none; }
+    .result-item span:last-child { font-size: 1.15rem; font-weight: 800; color: #f8fafc; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 8px; background: rgba(96, 165, 250, 0.13); border: 1px solid rgba(96, 165, 250, 0.34); color: var(--text); border-radius: 999px; font-weight: 700; font-size: 0.95rem; }
+    .debug-hud { position: absolute; top: 8px; left: 8px; padding: 6px 10px; border-radius: 6px; background: rgba(15, 23, 42, 0.75); color: #f8fafc; font-size: 12px; line-height: 1.4; pointer-events: none; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .color-chip { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.75); display: inline-block; vertical-align: -3px; box-shadow: 0 0 0 2px rgba(2,6,23,0.4); }
+    .muted { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+    footer { text-align: center; padding: 0 12px 14px; color: var(--muted); font-size: 0.82rem; }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; padding: 14px; }
+      .visual-panel { order: 1; }
+      .control-panel { order: 2; }
+      #canvas-container { height: 430px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>3D Dice Roller</h1>
+    <p class="muted">Physical dice rolls in a tabletop tray.</p>
+  </header>
+  <main>
+    <section class="panel visual-panel">
+      <div class="panel-title">
+        <h2>Dice tray</h2>
+        <span>Results come from the final resting face</span>
+      </div>
+      <div id="canvas-container"></div>
+    </section>
+    <section class="panel control-panel">
+      <div class="panel-title">
+        <h2>Roll setup</h2>
+        <span>d6, color, and polyhedral dice</span>
+      </div>
+      <div class="controls">
+        <div>
+          <label for="die">Die type</label>
+          <select id="die">
+            <option value="d6">d6 (poker)</option>
+            <option value="color">Color die (orange, blue, pink, green, yellow, red)</option>
+            <option value="d8">d8</option>
+            <option value="d10">d10</option>
+            <option value="d12">d12</option>
+            <option value="d20">d20</option>
+          </select>
+        </div>
+        <div>
+          <label for="count">Dice count</label>
+          <input id="count" type="number" min="1" max="12" value="2" />
+        </div>
+        <div>
+          <button id="roll">Roll the dice</button>
+        </div>
+      </div>
+      <div id="results" aria-live="polite">
+        <p class="muted">Results will appear here.</p>
+      </div>
+    </section>
+  </main>
+  <footer>Browser-based tabletop dice roller.</footer>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/",
+        "cannon-es": "https://cdn.skypack.dev/cannon-es"
+      }
+    }
+  </script>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
